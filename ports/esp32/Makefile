@@ -1,3 +1,13 @@
+ifndef PROJECT_PATH
+PROJECT_PATH := $(abspath $(dir $(firstword $(MAKEFILE_LIST)))/../../..)
+export PROJECT_PATH
+endif
+
+ifndef IDF_PATH
+IDF_PATH := $(PROJECT_PATH)/esp-idf
+export IDF_PATH
+endif
+
 include ../../py/mkenv.mk
 
 # qstr definitions (must come before including py.mk)
@@ -56,6 +66,12 @@ INC += -I$(TOP)
 INC += -I$(TOP)/lib/mp-readline
 INC += -I$(TOP)/lib/netutils
 INC += -I$(TOP)/lib/timeutils
+INC += -I$(PROJECT_PATH)/components/badge
+INC += -I$(PROJECT_PATH)/components/ugfx-glue
+INC += -I$(TOP)/../ugfx/src/gdisp/mcufont
+INC += -I$(TOP)/../ugfx
+INC += -I$(TOP)/../ugfx/src
+INC += -I$(TOP)/../ugfx/drivers/gdisp/framebuffer
 INC += -I$(BUILD)
 
 INC_ESPCOMP += -I$(ESPCOMP)/bootloader_support/include
@@ -78,6 +94,7 @@ INC_ESPCOMP += -I$(ESPCOMP)/newlib/platform_include
 INC_ESPCOMP += -I$(ESPCOMP)/newlib/include
 INC_ESPCOMP += -I$(ESPCOMP)/nvs_flash/include
 INC_ESPCOMP += -I$(ESPCOMP)/freertos/include
+INC_ESPCOMP += -I$(ESPCOMP)/freertos/include/freertos
 INC_ESPCOMP += -I$(ESPCOMP)/tcpip_adapter/include
 INC_ESPCOMP += -I$(ESPCOMP)/lwip/include/lwip
 INC_ESPCOMP += -I$(ESPCOMP)/lwip/include/lwip/port
@@ -175,6 +192,7 @@ SRC_C = \
 	machine_wdt.c \
 	mpthreadport.c \
 	machine_rtc.c \
+	modugfx.c \
 	$(SRC_MOD)
 
 EXTMOD_SRC_C = $(addprefix extmod/,\
@@ -652,6 +670,17 @@ OBJ_ESPIDF += $(addprefix $(BUILD)/, $(ESPIDF_SMARTCONFIG_ACK_O))
 OBJ_ESPIDF += $(addprefix $(BUILD)/, $(ESPIDF_SPI_FLASH_O))
 OBJ_ESPIDF += $(addprefix $(BUILD)/, $(ESPIDF_ULP_O))
 OBJ_ESPIDF += $(addprefix $(BUILD)/, $(ESPIDF_WPA_SUPPLICANT_O))
+
+$(BUILD)/components/%.o:
+BADGE_COMPONENTS_O = $(addprefix $(PROJECT_PATH)/components/,\
+	badge/badge_eink.o \
+	badge/badge_eink_fb.o \
+	badge/badge_nvs.o \
+	ugfx-glue/gdisp_lld_framebuffer.o \
+	ugfx-glue/ginput_lld_toggle.o \
+	)
+
+OBJ_ESPIDF += $(addprefix $(BUILD)/, $(BADGE_COMPONENTS_O))
 ################################################################################
 # Main targets
 
