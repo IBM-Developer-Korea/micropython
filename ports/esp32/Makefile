@@ -68,10 +68,10 @@ INC += -I$(TOP)/lib/netutils
 INC += -I$(TOP)/lib/timeutils
 INC += -I$(PROJECT_PATH)/components/badge
 INC += -I$(PROJECT_PATH)/components/ugfx-glue
-INC += -I$(TOP)/../ugfx/src/gdisp/mcufont
-INC += -I$(TOP)/../ugfx
-INC += -I$(TOP)/../ugfx/src
-INC += -I$(TOP)/../ugfx/drivers/gdisp/framebuffer
+INC += -I$(PROJECT_PATH)/ugfx/src/gdisp/mcufont
+INC += -I$(PROJECT_PATH)/ugfx
+INC += -I$(PROJECT_PATH)/ugfx/src
+INC += -I$(PROJECT_PATH)/ugfx/drivers/gdisp/framebuffer
 INC += -I$(BUILD)
 
 INC_ESPCOMP += -I$(ESPCOMP)/bootloader_support/include
@@ -193,6 +193,9 @@ SRC_C = \
 	mpthreadport.c \
 	machine_rtc.c \
 	modugfx.c \
+	ugfx_containers.c \
+	ugfx_widgets.c \
+	ugfx_styles.c \
 	$(SRC_MOD)
 
 EXTMOD_SRC_C = $(addprefix extmod/,\
@@ -674,10 +677,15 @@ OBJ_ESPIDF += $(addprefix $(BUILD)/, $(ESPIDF_WPA_SUPPLICANT_O))
 $(BUILD)/components/%.o:
 BADGE_COMPONENTS_O = $(addprefix $(PROJECT_PATH)/components/,\
 	badge/badge_eink.o \
+	badge/badge_input.o \
+	badge/badge_eink_dev.o \
+	badge/badge_eink_lut.o \
 	badge/badge_eink_fb.o \
 	badge/badge_nvs.o \
 	ugfx-glue/gdisp_lld_framebuffer.o \
 	ugfx-glue/ginput_lld_toggle.o \
+	ugfx-glue/gfx_mk.o \
+	ugfx-glue/gfx_userfs.o \
 	)
 
 OBJ_ESPIDF += $(addprefix $(BUILD)/, $(BADGE_COMPONENTS_O))

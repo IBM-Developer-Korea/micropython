@@ -906,7 +906,7 @@ STATIC mp_obj_t ugfx_fonts_list(void) {
   const struct mf_font_list_s *f = gdispListFonts();
 
   while (f){
-    mp_obj_list_append(list, mp_obj_new_str(f->font->short_name, strlen(f->font->short_name), false));
+    mp_obj_list_append(list, mp_obj_new_str(f->font->short_name, strlen(f->font->short_name)));
     f = f->next;
   }
 
@@ -915,9 +915,9 @@ STATIC mp_obj_t ugfx_fonts_list(void) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(ugfx_fonts_list_obj, ugfx_fonts_list);
 
-#define store_dict_str(dict, field, contents) mp_obj_dict_store(dict, mp_obj_new_str(field, strlen(field), false), mp_obj_new_str(contents, strlen(contents), false))
-#define store_dict_int(dict, field, contents) mp_obj_dict_store(dict, mp_obj_new_str(field, strlen(field), false), mp_obj_new_int(contents));
-#define store_dict_foo(dict, field, contents) mp_obj_dict_store(dict, mp_obj_new_str(field, strlen(field), false), contents);
+#define store_dict_str(dict, field, contents) mp_obj_dict_store(dict, mp_obj_new_str(field, strlen(field)), mp_obj_new_str(contents, strlen(contents)))
+#define store_dict_int(dict, field, contents) mp_obj_dict_store(dict, mp_obj_new_str(field, strlen(field)), mp_obj_new_int(contents));
+#define store_dict_foo(dict, field, contents) mp_obj_dict_store(dict, mp_obj_new_str(field, strlen(field)), contents);
 
 STATIC mp_obj_t ugfx_fonts_dump(mp_uint_t n_args, const mp_obj_t *args) {
   mp_uint_t len;
