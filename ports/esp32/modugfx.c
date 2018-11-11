@@ -38,6 +38,7 @@
 
 #include <stdint.h>
 #include <badge_button.h>
+#include <badge_input.h>
 
 #include "modugfx.h"
 #include "gfxconf.h"
@@ -778,6 +779,8 @@ void ugfx_ginput_callback_handler(void *param, GEvent *pe){
 /// Enable callbacks for button events
 ///
 STATIC mp_obj_t ugfx_input_init(void) {
+  badge_input_init();
+  badge_button_init();
   for(size_t i = 1; i <= BADGE_BUTTONS; i++){
     button_callbacks[i] = mp_const_none;
     geventListenerInit(&button_listeners[i]);
@@ -1036,14 +1039,10 @@ STATIC const mp_rom_map_elem_t ugfx_module_globals_table[] = {
      MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_LEFT)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_JOY_RIGHT),
      MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_RIGHT)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_MID),
+     MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_MID)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_A), MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_A)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_B), MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_B)},
-    {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_SELECT),
-     MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_SELECT)},
-    {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_START),
-     MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_START)},
-    {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_FLASH),
-     MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_FLASH)},
 
     {MP_OBJ_NEW_QSTR(MP_QSTR_clear), (mp_obj_t)&ugfx_clear_obj},
     {MP_OBJ_NEW_QSTR(MP_QSTR_poll), (mp_obj_t)&ugfx_poll_obj},

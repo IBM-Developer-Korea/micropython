@@ -690,6 +690,8 @@ OBJ_ESPIDF += $(addprefix $(BUILD)/, $(ESPIDF_WPA_SUPPLICANT_O))
 
 $(BUILD)/components/%.o:
 BADGE_COMPONENTS_O = $(addprefix $(PROJECT_PATH)/components/,\
+	badge/badge_base.o \
+	badge/badge_gpiobutton.o \
 	badge/badge_input.o \
 	badge/badge_nvs.o \
 	ugfx-glue/gdisp_lld_mk.o \
