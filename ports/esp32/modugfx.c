@@ -34,12 +34,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#ifndef UNIX
-#include "board_framebuffer.h"
-#else
-#include "badge_eink.h"
-uint8_t target_lut;
-#endif
 #include "ginput_lld_toggle_config.h"
 
 #include <stdint.h>
@@ -62,7 +56,6 @@ uint8_t target_lut;
 
 typedef struct _ugfx_obj_t { mp_obj_base_t base; } ugfx_obj_t;
 
-extern bool ugfx_screen_flipped;
 static orientation_t get_orientation(int a){
 	if (a == 90)
 		return GDISP_ROTATE_90;
@@ -120,26 +113,6 @@ STATIC mp_obj_t ugfx_deinit(void) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(ugfx_deinit_obj, ugfx_deinit);
 
 
-// LUT stettings
-
-STATIC mp_obj_t ugfx_set_lut(mp_obj_t selected_lut) {
-  int lut = mp_obj_get_int(selected_lut);
-  if (lut >= 0 && lut <= BADGE_EINK_LUT_MAX) {
-    target_lut = lut;
-  } else if (lut >= 0xf0 && lut <= 0xff) {
-    target_lut = lut;
-  } else {
-    mp_raise_msg(&mp_type_ValueError, "invalid LUT");
-  }
-  return mp_const_none;
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(ugfx_set_lut_obj, ugfx_set_lut);
-
-STATIC mp_obj_t ugfx_get_lut() {
-  return mp_obj_new_int(target_lut);
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(ugfx_get_lut_obj, ugfx_get_lut);
-
 /// \method set_orientation(a)
 ///
 /// Set orientation to 0, 90, 180 or 270 degrees
@@ -182,20 +155,6 @@ STATIC mp_obj_t ugfx_height(void) {
     return mp_obj_new_int(gdispGetHeight());
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(ugfx_height_obj, ugfx_height);
-
-
-/// \method get_pixel()
-///
-/// Gets the colour of the given pixel at (x,y)
-///
-STATIC mp_obj_t ugfx_get_pixel(mp_obj_t x_in, mp_obj_t y_in) {
-    // extract arguments
-    int x = mp_obj_get_int(x_in);
-    int y = mp_obj_get_int(y_in);
-
-    return mp_obj_new_int(gdispGetPixelColor(x,y));
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_2(ugfx_get_pixel_obj, ugfx_get_pixel);
 
 
 /// \method set_default_font()
@@ -271,25 +230,6 @@ STATIC mp_obj_t ugfx_clear(mp_uint_t n_args, const mp_obj_t *args) {
   return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(ugfx_clear_obj, 0, 1, ugfx_clear);
-
-/// \method flush()
-///
-/// Flush the display buffer to the screen
-/// Optional LUT
-///
-STATIC mp_obj_t ugfx_flush(mp_uint_t n_args, const mp_obj_t *args) {
-#ifdef UNIX
-  mp_hal_delay_ms(EMU_EINK_SCREEN_DELAY_MS);
-#endif
-  uint8_t target_lut_backup = target_lut;
-  if (n_args == 1) {
-    ugfx_set_lut(args[0]);
-  }
-  gdispFlush();
-  target_lut = target_lut_backup;
-  return mp_const_none;
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(ugfx_flush_obj, 0, 1, ugfx_flush);
 
 /// \method get_char_width(char, font)
 ///
@@ -892,10 +832,6 @@ STATIC mp_obj_t ugfx_demo(mp_obj_t hacking) {
 #ifdef UNIX
   mp_hal_delay_ms(EMU_EINK_SCREEN_DELAY_MS);
 #endif
-  uint8_t target_lut_backup = target_lut;
-  target_lut = 0xff;
-  gdispFlush();
-  target_lut = target_lut_backup;
 
   return mp_const_none;
 }
@@ -1109,20 +1045,7 @@ STATIC const mp_rom_map_elem_t ugfx_module_globals_table[] = {
     {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_FLASH),
      MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_FLASH)},
 
-     {MP_OBJ_NEW_QSTR(MP_QSTR_LUT_FULL), MP_OBJ_NEW_SMALL_INT(BADGE_EINK_LUT_FULL)},
-     {MP_OBJ_NEW_QSTR(MP_QSTR_LUT_NORMAL), MP_OBJ_NEW_SMALL_INT(BADGE_EINK_LUT_NORMAL)},
-     {MP_OBJ_NEW_QSTR(MP_QSTR_LUT_FASTER), MP_OBJ_NEW_SMALL_INT(BADGE_EINK_LUT_FASTER)},
-     {MP_OBJ_NEW_QSTR(MP_QSTR_LUT_FASTEST), MP_OBJ_NEW_SMALL_INT(BADGE_EINK_LUT_FASTEST)},
-     {MP_OBJ_NEW_QSTR(MP_QSTR_LUT_DEFAULT), MP_OBJ_NEW_SMALL_INT(BADGE_EINK_LUT_DEFAULT)},
-     {MP_OBJ_NEW_QSTR(MP_QSTR_LUT_MAX), MP_OBJ_NEW_SMALL_INT(BADGE_EINK_LUT_MAX)},
-
-     {MP_OBJ_NEW_QSTR(MP_QSTR_GREYSCALE), MP_OBJ_NEW_SMALL_INT(0xff)},
-
-     {MP_OBJ_NEW_QSTR(MP_QSTR_set_lut), (mp_obj_t)&ugfx_set_lut_obj},
-     {MP_OBJ_NEW_QSTR(MP_QSTR_get_lut), (mp_obj_t)&ugfx_get_lut_obj},
-
     {MP_OBJ_NEW_QSTR(MP_QSTR_clear), (mp_obj_t)&ugfx_clear_obj},
-    {MP_OBJ_NEW_QSTR(MP_QSTR_flush), (mp_obj_t)&ugfx_flush_obj},
     {MP_OBJ_NEW_QSTR(MP_QSTR_poll), (mp_obj_t)&ugfx_poll_obj},
 
     {MP_OBJ_NEW_QSTR(MP_QSTR_get_string_width),
@@ -1134,7 +1057,6 @@ STATIC const mp_rom_map_elem_t ugfx_module_globals_table[] = {
     {MP_OBJ_NEW_QSTR(MP_QSTR_text), (mp_obj_t)&ugfx_text_obj },
     {MP_OBJ_NEW_QSTR(MP_QSTR_string_box), (mp_obj_t)&ugfx_string_box_obj},
 
-    {MP_OBJ_NEW_QSTR(MP_QSTR_get_pixel), (mp_obj_t)&ugfx_get_pixel_obj},
     {MP_OBJ_NEW_QSTR(MP_QSTR_pixel), (mp_obj_t)&ugfx_pixel_obj},
     {MP_OBJ_NEW_QSTR(MP_QSTR_line), (mp_obj_t)&ugfx_line_obj},
     {MP_OBJ_NEW_QSTR(MP_QSTR_box), (mp_obj_t)&ugfx_box_obj},

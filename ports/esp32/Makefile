@@ -8,6 +8,17 @@ IDF_PATH := $(PROJECT_PATH)/esp-idf
 export IDF_PATH
 endif
 
+ifndef UGFX_PATH
+UGFX_PATH := $(PROJECT_PATH)/ugfx
+export UGFX_PATH
+endif
+
+ifndef ESP_IOT_PATH
+ESP_IOT_PATH := $(PROJECT_PATH)/esp-iot-solution
+export ESP_IOT_PATH
+
+endif
+
 include ../../py/mkenv.mk
 
 # qstr definitions (must come before including py.mk)
@@ -68,10 +79,13 @@ INC += -I$(TOP)/lib/netutils
 INC += -I$(TOP)/lib/timeutils
 INC += -I$(PROJECT_PATH)/components/badge
 INC += -I$(PROJECT_PATH)/components/ugfx-glue
-INC += -I$(PROJECT_PATH)/ugfx/src/gdisp/mcufont
-INC += -I$(PROJECT_PATH)/ugfx
-INC += -I$(PROJECT_PATH)/ugfx/src
-INC += -I$(PROJECT_PATH)/ugfx/drivers/gdisp/framebuffer
+INC += -I$(UGFX_PATH)
+INC += -I$(UGFX_PATH)/src
+INC += -I$(UGFX_PATH)/src/gdisp/mcufont
+INC += -I$(ESP_IOT_PATH)/components/hmi/gdrivers/gdisp/ILI9341
+INC += -I$(ESP_IOT_PATH)/components/hmi/ugfx_gui
+INC += -I$(ESP_IOT_PATH)/components/spi_devices/lcd
+INC += -I$(ESP_IOT_PATH)/components/spi_devices/lcd/include
 INC += -I$(BUILD)
 
 INC_ESPCOMP += -I$(ESPCOMP)/bootloader_support/include
@@ -676,16 +690,14 @@ OBJ_ESPIDF += $(addprefix $(BUILD)/, $(ESPIDF_WPA_SUPPLICANT_O))
 
 $(BUILD)/components/%.o:
 BADGE_COMPONENTS_O = $(addprefix $(PROJECT_PATH)/components/,\
-	badge/badge_eink.o \
 	badge/badge_input.o \
-	badge/badge_eink_dev.o \
-	badge/badge_eink_lut.o \
-	badge/badge_eink_fb.o \
 	badge/badge_nvs.o \
-	ugfx-glue/gdisp_lld_framebuffer.o \
-	ugfx-glue/ginput_lld_toggle.o \
+	ugfx-glue/gdisp_lld_mk.o \
 	ugfx-glue/gfx_mk.o \
 	ugfx-glue/gfx_userfs.o \
+	ugfx-glue/ginput_lld_toggle.o \
+	ugfx-glue/lcd_adapter_mk.o \
+	ugfx-glue/spi_lcd_mk.o \
 	)
 
 OBJ_ESPIDF += $(addprefix $(BUILD)/, $(BADGE_COMPONENTS_O))

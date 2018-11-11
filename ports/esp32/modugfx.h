@@ -36,4 +36,6 @@
 #include "ugfx_styles.h"
 #include "ugfx_widgets.h"
 
+bool ugfx_screen_flipped;
+
 extern const mp_obj_type_t ugfx_type;
