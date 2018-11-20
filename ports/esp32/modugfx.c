@@ -35,6 +35,7 @@
 #include <stdio.h>
 
 #include "ginput_lld_toggle_config.h"
+#include "py/objarray.h"
 
 #include <stdint.h>
 #include <badge_button.h>
@@ -714,9 +715,21 @@ STATIC mp_obj_t ugfx_display_image(mp_uint_t n_args, const mp_obj_t *args){
 			iptr = &imo;
 		}
 		else if (MP_OBJ_IS_TYPE(img_obj, &ugfx_image_type))
+		{
 			iptr = &(((ugfx_image_obj_t*)img_obj)->thisImage);
+		}
+		else if (MP_OBJ_IS_TYPE(img_obj, &mp_type_bytearray))
+		{
+			void *items = ((mp_obj_array_t*)img_obj)->items;
+			gdispImageError er = gdispImageOpenMemory(&imo, items);
+			if (er != 0){
+				nlr_raise(mp_obj_new_exception_msg(&mp_type_ValueError, "Error finding image in bytearray"));
+				return mp_const_none;
+			}
+			iptr = &imo;
+		}
 		else{
-            nlr_raise(mp_obj_new_exception_msg(&mp_type_TypeError, "img argument needs to be be a Image or String type"));
+			nlr_raise(mp_obj_new_exception_msg(&mp_type_TypeError, "img argument needs to be be a bytearray (for image data) or String type (for file path)"));
 			return mp_const_none;
 		}
 
@@ -1024,8 +1037,28 @@ STATIC const mp_rom_map_elem_t ugfx_module_globals_table[] = {
     {MP_OBJ_NEW_QSTR(MP_QSTR_init), (mp_obj_t)&ugfx_init_obj},
     {MP_OBJ_NEW_QSTR(MP_QSTR_deinit), (mp_obj_t)&ugfx_deinit_obj},
 
-    {MP_OBJ_NEW_QSTR(MP_QSTR_BLACK), MP_OBJ_NEW_SMALL_INT(Black)},
-    {MP_OBJ_NEW_QSTR(MP_QSTR_WHITE), MP_OBJ_NEW_SMALL_INT(White)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_RED),        MP_OBJ_NEW_SMALL_INT(Red)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_BLUE),       MP_OBJ_NEW_SMALL_INT(Blue)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_GREEN),      MP_OBJ_NEW_SMALL_INT(Green)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_BLACK),      MP_OBJ_NEW_SMALL_INT(Black)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_WHITE),      MP_OBJ_NEW_SMALL_INT(White)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_YELLOW),     MP_OBJ_NEW_SMALL_INT(Yellow)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_ORANGE),     MP_OBJ_NEW_SMALL_INT(Orange)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_PURPLE),     MP_OBJ_NEW_SMALL_INT(Purple)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_GREY),       MP_OBJ_NEW_SMALL_INT(Grey)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_GRAY),       MP_OBJ_NEW_SMALL_INT(Gray)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_PURPLE),     MP_OBJ_NEW_SMALL_INT(Purple)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_MAGENTA),    MP_OBJ_NEW_SMALL_INT(Magenta)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_AQUA),       MP_OBJ_NEW_SMALL_INT(Aqua)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_CYAN),       MP_OBJ_NEW_SMALL_INT(Cyan)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_LIME),       MP_OBJ_NEW_SMALL_INT(Lime)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_MAROON),     MP_OBJ_NEW_SMALL_INT(Maroon)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_NAVY),       MP_OBJ_NEW_SMALL_INT(Navy)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_OLIVE),      MP_OBJ_NEW_SMALL_INT(Olive)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_SILVER),     MP_OBJ_NEW_SMALL_INT(Silver)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_TEAL),       MP_OBJ_NEW_SMALL_INT(Teal)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_PINK),       MP_OBJ_NEW_SMALL_INT(Pink)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_SKYBLUE),    MP_OBJ_NEW_SMALL_INT(SkyBlue)},
 
     {MP_OBJ_NEW_QSTR(MP_QSTR_justifyLeft), MP_OBJ_NEW_SMALL_INT(justifyLeft)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_justifyCenter),
@@ -1039,6 +1072,8 @@ STATIC const mp_rom_map_elem_t ugfx_module_globals_table[] = {
      MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_LEFT)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_JOY_RIGHT),
      MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_RIGHT)},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_JOY_CENTER),
+     MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_CENTER)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_MID),
      MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_MID)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_A), MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_A)},

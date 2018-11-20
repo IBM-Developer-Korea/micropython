@@ -696,7 +696,6 @@ BADGE_COMPONENTS_O = $(addprefix $(PROJECT_PATH)/components/,\
 	badge/badge_nvs.o \
 	ugfx-glue/gdisp_lld_mk.o \
 	ugfx-glue/gfx_mk.o \
-	ugfx-glue/gfx_userfs.o \
 	ugfx-glue/ginput_lld_toggle.o \
 	ugfx-glue/lcd_adapter_mk.o \
 	ugfx-glue/spi_lcd_mk.o \
