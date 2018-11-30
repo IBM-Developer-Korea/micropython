@@ -115,6 +115,28 @@ STATIC mp_obj_t ugfx_deinit(void) {
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(ugfx_deinit_obj, ugfx_deinit);
 
 
+/// \method HTML2COLOR(hexcolor)
+///
+/// Convert a 6 digit HTML code (hex) into a color value.
+///
+STATIC mp_obj_t ugfx_html2color(mp_obj_t color_obj) {
+	const uint32_t hexcolor = mp_obj_get_int(color_obj);
+	return mp_obj_new_int(HTML2COLOR(hexcolor));
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(ugfx_html2color_obj, ugfx_html2color);
+
+/// \method RGB2COLOR(r, g, b)
+///
+/// Convert red, green, blue (each 0 to 255) into a color value.
+///
+STATIC mp_obj_t ugfx_rgb2color(mp_uint_t n_args, const mp_obj_t *args) {
+	const uint8_t r = mp_obj_get_int(args[0]);
+	const uint8_t g = mp_obj_get_int(args[1]);
+	const uint8_t b = mp_obj_get_int(args[2]);
+	return mp_obj_new_int(RGB2COLOR(r, g, b));
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(ugfx_rgb2color_obj, 3, 3, ugfx_rgb2color);
+
 /// \method set_orientation(a)
 ///
 /// Set orientation to 0, 90, 180 or 270 degrees
@@ -1078,6 +1100,9 @@ STATIC const mp_rom_map_elem_t ugfx_module_globals_table[] = {
      MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_MID)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_A), MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_A)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_BTN_B), MP_OBJ_NEW_SMALL_INT(BADGE_BUTTON_B)},
+
+    {MP_OBJ_NEW_QSTR(MP_QSTR_HTML2COLOR), (mp_obj_t)&ugfx_html2color_obj},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_RGB2COLOR), (mp_obj_t)&ugfx_rgb2color_obj},
 
     {MP_OBJ_NEW_QSTR(MP_QSTR_clear), (mp_obj_t)&ugfx_clear_obj},
     {MP_OBJ_NEW_QSTR(MP_QSTR_poll), (mp_obj_t)&ugfx_poll_obj},
