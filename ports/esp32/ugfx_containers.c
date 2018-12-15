@@ -451,7 +451,7 @@ STATIC mp_obj_t ugfx_container_make_new(const mp_obj_type_t *type, mp_uint_t n_a
 	//wi.g.parent = ;
 	wi.text = 0;//text;
 
-	if (n_args > 4 && MP_OBJ_IS_TYPE(vals[4].u_obj, &ugfx_style_type)) {
+	if (MP_OBJ_IS_TYPE(vals[4].u_obj, &ugfx_style_type)) {
 		ugfx_style_obj_t *st = vals[4].u_obj;
 		wi.customStyle = &(st->style);
 		ctr->style = &(st->style);
