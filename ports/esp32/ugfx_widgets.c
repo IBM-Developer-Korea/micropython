@@ -873,6 +873,8 @@ typedef struct _ugfx_keyboard_t {
 
 } ugfx_keyboard_obj_t;
 
+STATIC mp_obj_t kb_callback;
+
 /// \classmethod \constructor(x, y, a, b, parent=None)
 ///
 /// Construct an Keyboard object.
@@ -946,7 +948,6 @@ STATIC mp_obj_t ugfx_keyboard_make_new(const mp_obj_type_t *type, mp_uint_t n_ar
 
 
 
-/*
 // Process an event
 static void ugfx_keyboard_event(void *param, GEvent *pe) {
 	#define pke		((GEventKeyboard *)pe)
@@ -963,10 +964,15 @@ static void ugfx_keyboard_event(void *param, GEvent *pe) {
 			break;
 		}
 
+		if (kb_callback != mp_const_none) {
+			mp_sched_schedule(kb_callback, mp_obj_new_int(pke->c[0]));
+		}
 		// Otherwise, send keyboard events only to widget in focus
+		/*
 		if (_widgetInFocus)
 			((gwidgetVMT*)_widgetInFocus->vmt)->KeyboardEvent((GWidgetObject*)_widgetInFocus, pke);
 		break;
+		*/
 	default:
 		break;
 	}
@@ -975,8 +981,7 @@ static void ugfx_keyboard_event(void *param, GEvent *pe) {
 	#undef pke
 
 }
-*/
-/*
+
 /// \method set_keyboard_callback(callback)
 ///
 /// Sets the callback for any active keyboard widgets
@@ -986,9 +991,11 @@ STATIC mp_obj_t ugfx_set_keyboard_callback(mp_obj_t self_in, mp_obj_t callback) 
 
 	if (callback == mp_const_none) {
         self->kb_callback = mp_const_none;
+        kb_callback = mp_const_none;
 		geventDetachSource(&(self->gl), gwinKeyboardGetEventSource(self->ghKeyboard));
     } else if (mp_obj_is_callable(callback)) {
         self->kb_callback = callback;
+        kb_callback = callback;
 		geventListenerInit(&(self->gl));
 		geventAttachSource(&(self->gl), gwinKeyboardGetEventSource(self->ghKeyboard), GLISTEN_KEYUP);
 		geventRegisterCallback(&(self->gl), ugfx_keyboard_event, 0);
@@ -1009,12 +1016,12 @@ STATIC mp_obj_t ugfx_clear_keyboard_callback(mp_obj_t self_in, mp_obj_t callback
 	ugfx_keyboard_obj_t *self = self_in;
 
     self->kb_callback = mp_const_none;
+    kb_callback = mp_const_none;
 	geventDetachSource(&(self->gl), gwinKeyboardGetEventSource(self->ghKeyboard));
 
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(ugfx_clear_keyboard_callback_obj, ugfx_clear_keyboard_callback);
-*/
 
 /// \method selected_key()
 ///
@@ -1083,8 +1090,8 @@ STATIC const mp_map_elem_t ugfx_keyboard_locals_dict_table[] = {
 		{ MP_OBJ_NEW_QSTR(MP_QSTR_style), (mp_obj_t)&ugfx_widget_style_obj },
 		{ MP_OBJ_NEW_QSTR(MP_QSTR_enabled), (mp_obj_t)&ugfx_widget_enabled_obj },
 
-//	{ MP_OBJ_NEW_QSTR(MP_QSTR_set_keyboard_callback), (mp_obj_t)&ugfx_set_keyboard_callback_obj },
-//    { MP_OBJ_NEW_QSTR(MP_QSTR_clear_keyboard_callback), (mp_obj_t)&ugfx_clear_keyboard_callback_obj },
+	{ MP_OBJ_NEW_QSTR(MP_QSTR_set_keyboard_callback), (mp_obj_t)&ugfx_set_keyboard_callback_obj },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_clear_keyboard_callback), (mp_obj_t)&ugfx_clear_keyboard_callback_obj },
 
 
 	//class constants
