@@ -210,6 +210,7 @@ SRC_C = \
 	ugfx_containers.c \
 	ugfx_widgets.c \
 	ugfx_styles.c \
+	modgp2y1014au.c \
 	$(SRC_MOD)
 
 EXTMOD_SRC_C = $(addprefix extmod/,\
