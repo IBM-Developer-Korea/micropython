@@ -769,6 +769,19 @@ STATIC mp_obj_t ugfx_display_image(mp_uint_t n_args, const mp_obj_t *args){
 
 		// set_blit_rotation(GDISP_ROTATE_0);
 
+		if (n_args > 3) {
+			int count = mp_obj_get_int(args[3]);
+			int interval = 50;
+			if (n_args > 4) {
+				interval = mp_obj_get_int(args[4]);
+			}
+			for (int i=0; i < count; i++) {
+				gfxSleepMilliseconds(interval);
+				gdispImageNext(iptr);
+				gdispImageDraw(iptr, x, y, swidth, sheight, 0, 0);
+			}
+		}
+
 		if (MP_OBJ_IS_STR(img_obj))
 			gdispImageClose(&imo);
 
@@ -778,7 +791,7 @@ STATIC mp_obj_t ugfx_display_image(mp_uint_t n_args, const mp_obj_t *args){
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(ugfx_display_image_obj, 3, 3, ugfx_display_image);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(ugfx_display_image_obj, 3, 5, ugfx_display_image);
 
 // INPUT
 
@@ -1081,6 +1094,14 @@ STATIC const mp_rom_map_elem_t ugfx_module_globals_table[] = {
     {MP_OBJ_NEW_QSTR(MP_QSTR_TEAL),       MP_OBJ_NEW_SMALL_INT(Teal)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_PINK),       MP_OBJ_NEW_SMALL_INT(Pink)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_SKYBLUE),    MP_OBJ_NEW_SMALL_INT(SkyBlue)},
+
+    {MP_OBJ_NEW_QSTR(MP_QSTR_IBMBlue60),    MP_OBJ_NEW_SMALL_INT(RGB2COLOR(31, 87, 164))},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_IBMRed40),    MP_OBJ_NEW_SMALL_INT(RGB2COLOR(255, 92, 73))},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_IBMTeal30),    MP_OBJ_NEW_SMALL_INT(RGB2COLOR(0, 186, 161))},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_IBMGreen10),    MP_OBJ_NEW_SMALL_INT(RGB2COLOR(137, 237, 160))},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_IBMCyan10),    MP_OBJ_NEW_SMALL_INT(RGB2COLOR(160, 227, 240))},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_IBMCoolGrey10),    MP_OBJ_NEW_SMALL_INT(RGB2COLOR(208, 218, 218))},
+    {MP_OBJ_NEW_QSTR(MP_QSTR_IBMGrey30),    MP_OBJ_NEW_SMALL_INT(RGB2COLOR(166, 165, 166))},
 
     {MP_OBJ_NEW_QSTR(MP_QSTR_justifyLeft), MP_OBJ_NEW_SMALL_INT(justifyLeft)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_justifyCenter),
