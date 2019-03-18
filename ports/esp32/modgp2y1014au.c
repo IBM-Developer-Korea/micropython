@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <rom/ets_sys.h>
 
 #include "esp_log.h"
 
@@ -102,27 +103,51 @@ STATIC mp_obj_t gp2y1014au_read_raw_vo(mp_obj_t self_in, mp_obj_t samplingTime, 
         initialized = 1;
     }
 
+
+    // uint64_t t0 = esp_timer_get_time();
+
     // Turn on ILED
     gpio_set_level(self->iled_id, 0);
 
+    // ESP_LOGE("gp2y1014au", "dt-xx:%d", (int)(esp_timer_get_time()));
+    // ESP_LOGE("gp2y1014au", "dt-xx:%d", (int)(esp_timer_get_time()));
+    // ESP_LOGE("gp2y1014au", "dt-xx:%d", (int)(esp_timer_get_time()));
+    // ESP_LOGE("gp2y1014au", "dt-xx:%d", (int)(esp_timer_get_time()));
+    // ESP_LOGE("gp2y1014au", "dt-xx:%d", (int)(esp_timer_get_time()));
+    // ESP_LOGE("gp2y1014au", "dt-xx:%d", (int)(esp_timer_get_time()));
+    // ESP_LOGE("gp2y1014au", "dt-xx:%d", (int)(esp_timer_get_time()));
+
     // Wait 0.28ms 
     mp_int_t stime = mp_obj_get_int(samplingTime);
+
+    // ESP_LOGE("gp2y1014au", "dt-00:%d", (int)(esp_timer_get_time() - t0));
+
     if (stime > 0) {
+        // ets_delay_us(stime);
         mp_hal_delay_us(stime);
     }
+
+
+    // ESP_LOGE("gp2y1014au", "dt-1:%d", (int)(esp_timer_get_time() - t0));
 
     // Read
     int VoRaw = adc1_get_raw(self->adc1_id);
     if (VoRaw == -1) mp_raise_ValueError("Parameter Error");
 
+
+    // ESP_LOGE("gp2y1014au", "dt-2:%d", (int)(esp_timer_get_time() - t0));
+
     // Wait 0.04ms
-    mp_int_t dtime = mp_obj_get_int(deltaTime);
-    if (dtime > 0) {
-        mp_hal_delay_us(dtime);
-    }
+    // mp_int_t dtime = mp_obj_get_int(deltaTime);
+    // if (dtime > 0) {
+    //     mp_hal_delay_us(dtime);
+    // }
 
     // Turn off ILED
     gpio_set_level(self->iled_id, 1);
+
+
+    // ESP_LOGE("gp2y1014au", "dt-3:%d", (int)(esp_timer_get_time() - t0));
 
     return MP_OBJ_NEW_SMALL_INT(VoRaw);
 }
@@ -143,33 +168,10 @@ STATIC mp_obj_t gp2y1014au_read_density(size_t n_args, const mp_obj_t *pos_args,
 
     gp2y1014au_GP2Y1014AU_obj_t *self = (gp2y1014au_GP2Y1014AU_obj_t*)MP_OBJ_TO_PTR(pos_args[0]);
 
-    static int initialized = 0;
-    if (!initialized) {
-        adc1_config_width(ADC_WIDTH_12Bit);
-        initialized = 1;
-    }
-
-    // Turn on ILED
-    gpio_set_level(self->iled_id, 0);
-
-    // Wait 0.28ms 
-    mp_int_t stime = args[ARG_samplingTime].u_int;
-    if (stime > 0) {
-        mp_hal_delay_us(stime);
-    }
-
     // Read
-    int VoRaw = adc1_get_raw(self->adc1_id);
+    mp_obj_t VoRawObj = gp2y1014au_read_raw_vo(self, MP_OBJ_NEW_SMALL_INT(args[ARG_samplingTime].u_int), MP_OBJ_NEW_SMALL_INT(args[ARG_deltaTime].u_int));
+    int VoRaw = mp_obj_get_int(VoRawObj);
     if (VoRaw == -1) mp_raise_ValueError("Parameter Error");
-
-    // Wait 0.04ms
-    mp_int_t dtime = args[ARG_deltaTime].u_int;
-    if (dtime > 0) {
-        mp_hal_delay_us(dtime);
-    }
-
-    // Turn off ILED
-    gpio_set_level(self->iled_id, 1);
 
     // Voc
     mp_float_t Voc = self->Voc;
