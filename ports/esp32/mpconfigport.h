@@ -217,6 +217,7 @@ extern const struct _mp_obj_module_t mp_gp2y1014au_module;
 #define MICROPY_PORT_ROOT_POINTERS \
     const char *readline_hist[8]; \
     mp_obj_t machine_pin_irq_handler[40]; \
+    mp_obj_t ugfx_button_input_handler[8]; \
 
 // type definitions for the specific machine
 
