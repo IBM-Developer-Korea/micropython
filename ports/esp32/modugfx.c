@@ -811,14 +811,18 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_0(ugfx_poll_obj, ugfx_poll);
 
 // callback system
 
-STATIC mp_obj_t button_callbacks[1+BADGE_BUTTONS];
+//STATIC mp_obj_t button_callbacks[1+BADGE_BUTTONS];
 STATIC GListener button_listeners[1+BADGE_BUTTONS];
 
 void ugfx_ginput_callback_handler(void *param, GEvent *pe){
   size_t button = (size_t) param;
-  if(button_callbacks[button] != mp_const_none){
+  mp_obj_t handler = MP_STATE_PORT(ugfx_button_input_handler)[button];
+  if(handler != mp_const_none){
     GEventToggle *toggle = (GEventToggle*) pe;
-    mp_sched_schedule(button_callbacks[button], mp_obj_new_bool(toggle->on ? 1 : 0));
+    //mp_sched_schedule(button_callbacks[button], mp_obj_new_bool(toggle->on ? 1 : 0));
+    if (!mp_sched_schedule(handler, mp_obj_new_bool(toggle->on ? 1 : 0))) {
+        mp_raise_msg(&mp_type_RuntimeError, "schedule stack full");
+    }
   }
 }
 
@@ -830,7 +834,8 @@ STATIC mp_obj_t ugfx_input_init(void) {
   badge_input_init();
   badge_button_init();
   for(size_t i = 1; i <= BADGE_BUTTONS; i++){
-    button_callbacks[i] = mp_const_none;
+    // button_callbacks[i] = mp_const_none;
+    MP_STATE_PORT(ugfx_button_input_handler)[i] = mp_const_none;
     geventListenerInit(&button_listeners[i]);
     button_listeners[i].callback = ugfx_ginput_callback_handler;
     button_listeners[i].param = (void*) i;
@@ -846,7 +851,8 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_0(ugfx_input_init_obj, ugfx_input_init);
 ///
 STATIC mp_obj_t ugfx_input_attach(mp_uint_t n_args, const mp_obj_t *args) {
   uint8_t button = mp_obj_get_int(args[0]);
-  button_callbacks[button] = args[1];
+  //button_callbacks[button] = args[1];
+  MP_STATE_PORT(ugfx_button_input_handler)[button] = args[1];
   return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(ugfx_input_attach_obj, 2, 2, ugfx_input_attach);
